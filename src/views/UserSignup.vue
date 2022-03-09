@@ -24,13 +24,13 @@
               >Error</span
             >
             <p class="text-sm text-gray-600 dark:text-gray-200">
-              Email already exists
+              {{ AuthErrorMsg }}
             </p>
           </div>
         </div>
       </div>
     </div>
-    <!-- Signup Error End -->
+
     <div class="flex h-screen justify-center items-center">
       <div
         class="flex flex-row max-w-sm overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800 lg:max-w-4xl w-full"
@@ -52,7 +52,7 @@
           <p
             class="text-xl text-center text-gray-600 dark:text-gray-200 font-product-sans"
           >
-            Create your Merchant Account
+            Create your Account
           </p>
           <br />
           <form name="signup_form">
@@ -93,21 +93,7 @@
                 required
                 pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                 title="Must be of the form personal_info@domain "
-                v-model="SellerEmail"
-              />
-            </div>
-
-            <br />
-
-            <div class="mt-4">
-              <input
-                id="signup_seller_org"
-                class="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring"
-                type="text"
-                placeholder="Enter Organization Name"
-                pattern="[\w ]{3,30}"
-                title="Must only contan alphabets and spaces upto 30 letters"
-                v-model="OrgName"
+                v-model="UserEmail"
               />
             </div>
 
@@ -134,6 +120,7 @@
                 pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
                 title="Minimum eight characters, at least one letter, one number and one special character"
                 v-model="ConfirmPassword"
+                @change="check_passwords"
               />
             </div>
             <br />
@@ -152,7 +139,7 @@
               <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
 
               <router-link
-                to="/sellers/login"
+                to="/users/login"
                 class="text-xs text-gray-500 uppercase dark:text-gray-400 hover:underline font-product-sans"
                 >or sign in</router-link
               >
@@ -170,56 +157,96 @@
 import axios from "axios";
 
 export default {
-  name: "SellerSignup",
+  name: "UserSignup",
   data() {
     return {
-      SellerEmail: "",
+      UserEmail: "",
       Password: "",
       ConfirmPassword: "",
       FirstName: "",
       LastName: "",
-      OrgName: "",
       AuthError: false,
+      AuthErrorMsg: "",
     };
   },
   methods: {
     async Submit() {
       if (document.forms["signup_form"].checkValidity()) {
-        if (this.Password != this.ConfirmPassword) {
-          document
-            .getElementById("signup_confirm_pass")
-            .setCustomValidity("Both Passwords Must be same");
-          return;
-        }
-        document.getElementById("signup_confirm_pass").setCustomValidity("");
         const component = this;
         const bodyFormData = new FormData();
         bodyFormData.append("auth_first_name", this.FirstName);
         bodyFormData.append("auth_last_name", this.LastName);
-        bodyFormData.append("auth_org_name", this.OrgName);
-        bodyFormData.append("auth_email", this.SellerEmail);
+        bodyFormData.append("auth_email", this.UserEmail);
         bodyFormData.append("auth_pass", this.Password);
         bodyFormData.append("sign_in", false);
         await axios({
-          url: "http://localhost:80/sports_place/api/seller_auth.php",
+          url: "http://localhost:80/sports_place/helpers/user_auth.php",
           method: "post",
           data: bodyFormData,
 
           headers: { "Content-Type": "multipart/form-data" },
         })
+          // Below line is needed because without response  provided as arguement
+          // axios will always execute below statement block even in case of an error
           // eslint-disable-next-line no-unused-vars
           .then(function (response) {
             this.AuthError = false;
-            component.$router.push({ path: "/sellers/login" });
+            component.Login();
+            // axios for unknown reason executes catch block even tho no error happened
+            return;
           })
           .catch(function (error) {
             if (error.response.status == 403) {
               component.AuthError = true;
+              component.AuthErrorMsg = "Email already exists";
             }
           });
       } else {
         document.forms["signup_form"].reportValidity();
       }
+    },
+    check_passwords() {
+      if (this.Password != this.ConfirmPassword) {
+        document
+          .getElementById("signup_confirm_pass")
+          .setCustomValidity("Both Passwords Must be same");
+        return;
+      } else {
+        document.getElementById("signup_confirm_pass").setCustomValidity("");
+      }
+    },
+    async Login() {
+      const component = this;
+      const bodyFormData = new FormData();
+      bodyFormData.append("auth_email", this.UserEmail);
+      bodyFormData.append("auth_pass", this.Password);
+      bodyFormData.append("sign_in", true);
+      await axios({
+        url: "http://localhost:80/sports_place/helpers/user_auth.php",
+        method: "post",
+        data: bodyFormData,
+
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+        .then(function (response) {
+          console.log(response);
+          sessionStorage.setItem(
+            "seller_session_token",
+            response.data.user_session_token
+          );
+          sessionStorage.setItem("seller_email", component.UserEmail);
+          sessionStorage.setItem("seller_first_name", response.data.first_name);
+          sessionStorage.setItem("seller_last_name", response.data.last_name);
+          component.$router.push({ path: "/" });
+          this.AuthError = false;
+          return;
+        })
+        .catch(function (error) {
+          if (error.response.status == 403) {
+            component.AuthError = true;
+            component.AuthErrorMsg = "Failed to Automatically Login";
+          }
+        });
     },
   },
 };

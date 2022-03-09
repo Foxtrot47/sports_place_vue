@@ -151,7 +151,7 @@
                   :key="n"
                   class="fa fa-star"
                 ></span>
-                <p class="text-xl">$ {{ product.product_price }}</p>
+                <p class="text-xl">₹ {{ product.product_price }}</p>
               </div>
             </router-link>
           </div>
@@ -227,8 +227,8 @@ export default {
   methods: {
     async runSearch() {
       // Doing the assignment here because i can update the data each time prpps are updated
-      this.catid = this.cat_id ? this.cat_id : 0;
-      this.subcatid = this.subcat_id && this.cat_id ? this.subcat_id : 0;
+      this.catid = this.cat_id > 0 ? this.cat_id : 0;
+      this.subcatid = this.subcat_id > 0 ? this.subcat_id : 0;
       this.searchkeyword = this.search_keyword ? this.search_keyword : "";
       this.sortby = this.sort_by ? this.sort_by : "";
       this.MinLimit = this.min_limit ? this.min_limit : 0;
@@ -236,12 +236,12 @@ export default {
       const component = this;
       // Send a request to our API and receive json data containing all listings made by the seller
       await this.$axios({
-        url: "http://localhost:80/sports_place/helpers/search.php",
+        url: "http://localhost:80/sports_place/api/search.php",
         method: "get",
         params: {
           catid: component.catid,
           subcatid: component.subcatid,
-          product_name: component.search_keyword,
+          product_name: component.searchkeyword,
           sortby: component.sortby,
           min_limit: component.min_limit,
           max_limit: component.max_limit,
@@ -366,7 +366,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .accordion {
   transition: 0.4s;
 }

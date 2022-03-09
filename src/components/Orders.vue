@@ -68,7 +68,7 @@
               </div>
 
               <div class="flex flex-row justify-around w-full col-span-2">
-                <p>${{ order.order_price }}</p>
+                <p>₹{{ order.order_price }}</p>
                 <div class="flex flex-col gap-y-2">
                   <p class="font-semibold">
                     Order Date: {{ order.order_date }}
@@ -94,22 +94,49 @@ export default {
     };
   },
   methods: {
-    fetchOrders() {
-      console.log(sessionStorage.getItem("user_session_token"));
+    async fetchOrders() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
         "session_token",
         sessionStorage.getItem("user_session_token")
       );
-      // Send a request to our API and receive json data containing all listings made by the seller
-      this.$axios({
-        url: "http://localhost:80/sports_place/helpers/listorders.php",
+      // Fetch all orders made by user
+      await this.$axios({
+        url: "http://localhost:80/sports_place/api/listorders.php",
         method: "post",
         data: bodyFormData,
         headers: { "Content-Type": "multipart/form-data" },
       }).then(function (response) {
         component.orderList = response.data;
+        component.orderList.forEach((orderItem, index) => {
+          component.fetchFullInfo(orderItem.product_id, index);
+        });
+      });
+    },
+    // Fetch product info of individual products
+    async fetchFullInfo(productID, index) {
+      const component = this;
+      const bodyFormData = new FormData();
+      bodyFormData.append(
+        "session_token",
+        sessionStorage.getItem("user_session_token")
+      );
+      bodyFormData.append("productid", productID);
+      bodyFormData.append("minimal", "1");
+      await this.$axios({
+        url: "http://localhost:80/sports_place/api/productinfo.php",
+        method: "post",
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" },
+      }).then(function (response) {
+        component.orderList[index].product_full_name =
+          response.data.product_full_name;
+        component.orderList[index].product_price = response.data.product_price;
+        component.orderList[index].product_main_image =
+          response.data.product_main_image;
+        component.orderList[index].product_seller_name =
+          response.data.product_seller_name;
       });
     },
   },

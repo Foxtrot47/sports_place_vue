@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
-import Home from "../components/Home.vue";
+import Home from "../views/Home.vue";
 import ProductInfo from "../components/Product.vue";
 import Search from "../components/Search.vue";
 
@@ -13,8 +13,13 @@ import SellerProfileInfo from "../components/SellerProfileInfo.vue";
 
 import UserLogin from "../components/UserLogin.vue";
 import UserSignup from "../components/UserSignup.vue";
+import UserInfo from "../components/UserInfo.vue";
 import Cart from "../components/Cart.vue";
 import Orders from "../components/Orders.vue";
+import Billing from "../components/Billing.vue";
+
+import AdminLogin from "../views/Admin/AdminLogin.vue";
+import AdminApprovals from "../views/Admin/AdminApprovals.vue";
 
 const routes = [
   {
@@ -52,6 +57,11 @@ const routes = [
     component: UserSignup,
   },
   {
+    path: "/users/profile",
+    name: "UserInfo",
+    component: UserInfo,
+  },
+  {
     path: "/users/cart",
     name: "Cart",
     component: Cart,
@@ -60,6 +70,11 @@ const routes = [
     path: "/users/orders",
     name: "Orders",
     component: Orders,
+  },
+  {
+    path: "/users/checkout",
+    name: "Billing",
+    component: Billing,
   },
   {
     path: "/sellers/",
@@ -92,6 +107,16 @@ const routes = [
     name: "SellerProfileInfo",
     component: SellerProfileInfo,
   },
+  {
+    path: "/admin/login",
+    name: "AdminLogin",
+    component: AdminLogin,
+  },
+  {
+    path: "/admin/approvals",
+    name: "AdminApprovals",
+    component: AdminApprovals,
+  },
 ];
 
 const router = createRouter({
@@ -102,16 +127,46 @@ const router = createRouter({
 router.beforeEach((to) => {
   // Check for valid session token if user is trying to access pages which authentication
   if (
+    to.fullPath.includes("/users/") &&
+    !(
+      to.fullPath.includes("/users/login") ||
+      to.fullPath.includes("/users/signup")
+    )
+  ) {
+    if (
+      sessionStorage.getItem("user_session_token") != undefined &&
+      sessionStorage.getItem("user_session_token") != ""
+    ) {
+      return true;
+    } else {
+      return "/users/login";
+    }
+  } else if (
     to.fullPath.includes("/sellers/") &&
     !(
       to.fullPath.includes("/sellers/login") ||
       to.fullPath.includes("/sellers/signup")
     )
   ) {
-    if (sessionStorage.getItem("seller_session_token") != undefined) {
+    if (
+      sessionStorage.getItem("seller_session_token") != undefined &&
+      sessionStorage.getItem("seller_session_token") != ""
+    ) {
       return true;
     } else {
       return "/sellers/login";
+    }
+  } else if (
+    to.fullPath.includes("/admin/") &&
+    !to.fullPath.includes("/admin/login")
+  ) {
+    if (
+      sessionStorage.getItem("admin_session_token") != undefined &&
+      sessionStorage.getItem("admin_session_token") != ""
+    ) {
+      return true;
+    } else {
+      return "/admin/login";
     }
   }
 });

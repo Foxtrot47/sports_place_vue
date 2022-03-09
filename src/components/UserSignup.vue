@@ -180,16 +180,21 @@ export default {
         bodyFormData.append("auth_pass", this.Password);
         bodyFormData.append("sign_in", false);
         await axios({
-          url: "http://localhost:80/sports_place/helpers/user_auth.php",
+          url: "http://localhost:80/sports_place/api/user_auth.php",
           method: "post",
           data: bodyFormData,
 
           headers: { "Content-Type": "multipart/form-data" },
         })
+          // Below line is needed because without response  provided as arguement
+          // axios will always execute below statement block even in case of an error
           // eslint-disable-next-line no-unused-vars
           .then(function (response) {
-            this.AuthError = false;
+            console.log(response);
+            component.AuthError = false;
             component.$router.push({ path: "/users/login" });
+            // axios for unknown reason executes catch block even tho no error happened
+            return;
           })
           .catch(function (error) {
             if (error.response.status == 403) {
@@ -210,39 +215,6 @@ export default {
       } else {
         document.getElementById("signup_confirm_pass").setCustomValidity("");
       }
-    },
-    async Login() {
-      const component = this;
-      const bodyFormData = new FormData();
-      bodyFormData.append("auth_email", this.UserEmail);
-      bodyFormData.append("auth_pass", this.Password);
-      bodyFormData.append("sign_in", true);
-      await axios({
-        url: "http://localhost:80/sports_place/helpers/user_auth.php",
-        method: "post",
-        data: bodyFormData,
-
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-        .then(function (response) {
-          console.log(response);
-          sessionStorage.setItem(
-            "seller_session_token",
-            response.data.user_session_token
-          );
-          sessionStorage.setItem("seller_email", component.UserEmail);
-          sessionStorage.setItem("seller_first_name", response.data.first_name);
-          sessionStorage.setItem("seller_last_name", response.data.last_name);
-          //component.$router.push({ path: "/" });
-          this.AuthError = false;
-          return;
-        })
-        .catch(function (error) {
-          if (error.response.status == 403) {
-            component.AuthError = true;
-            component.AuthErrorMsg = "Failed to Automatically Login";
-          }
-        });
     },
   },
 };

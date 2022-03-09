@@ -146,7 +146,7 @@ export default {
       bodyFormData.append("sort_order", this.sort.sortOrder);
       // Send a request to our API and receive json data containing all listings made by the seller
       axios({
-        url: "http://localhost:80/sports_place/helpers/listing_helper.php",
+        url: "http://localhost:80/sports_place/api/listing_helper.php",
         method: "post",
         data: bodyFormData,
         headers: { "Content-Type": "multipart/form-data" },
@@ -166,7 +166,7 @@ export default {
       bodyFormData.append("product_id", product_id);
 
       axios({
-        url: "http://localhost:80/sports_place/helpers/listing_helper.php",
+        url: "http://localhost:80/sports_place/api/listing_helper.php",
         method: "post",
         data: bodyFormData,
         headers: { "Content-Type": "multipart/form-data" },

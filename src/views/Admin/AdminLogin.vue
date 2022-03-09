@@ -1,11 +1,5 @@
 <template>
-  <div
-    class="h-full"
-    style="
-      background-image: url('https://i.imgur.com/6IqBTFa.jpg');
-      background-size: cover;
-    "
-  >
+  <div class="h-full">
     <div
       class="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800 transform transition duration-500 ease-in-out z-10 absolute top-10 left-1/3"
       id="failed_auth_alert"
@@ -35,9 +29,7 @@
       </div>
     </div>
 
-    <div
-      class="flex h-screen justify-center items-center backdrop-filter backdrop-blur-lg"
-    >
+    <div class="flex h-screen justify-center items-center">
       <div
         class="flex max-w-sm overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800 lg:max-w-4xl w-full"
       >
@@ -56,7 +48,7 @@
           </h2>
 
           <p class="text-xl text-center text-gray-600 dark:text-gray-200">
-            Welcome back!
+            Admin Login
           </p>
 
           <div class="flex items-center justify-between mt-4">
@@ -77,9 +69,10 @@
                 >Email Address</label
               >
               <input
+                id="auth_email"
                 class="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:ring"
                 type="email"
-                v-model="UserEmail"
+                v-model="AdminEmail"
                 placeholder="Enter email address"
                 required
                 pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
@@ -94,15 +87,10 @@
                   for="auth_pass"
                   >Password</label
                 >
-                <!-- Dummy Since i don't have any mail service -->
-                <a
-                  href="#"
-                  class="text-xs text-gray-500 dark:text-gray-300 hover:underline"
-                  >Forgot Password?</a
-                >
               </div>
 
               <input
+                id="auth_pass"
                 class="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
                 type="password"
                 v-model="Password"
@@ -124,18 +112,6 @@
               Login
             </button>
           </div>
-
-          <div class="flex items-center justify-between mt-4">
-            <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
-
-            <router-link
-              to="/users/signup"
-              class="text-xs text-gray-500 uppercase dark:text-gray-400 hover:underline"
-              >or sign up</router-link
-            >
-
-            <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
-          </div>
         </div>
       </div>
     </div>
@@ -144,13 +120,12 @@
 
 <script>
 import axios from "axios";
-import md5 from "md5";
 
 export default {
-  name: "UserLogin",
+  name: "AdminLogin",
   data() {
     return {
-      UserEmail: "",
+      AdminEmail: "",
       Password: "",
       AuthError: false,
       authErrorMsg: "",
@@ -162,31 +137,27 @@ export default {
       if (document.forms["loginform"].checkValidity()) {
         const component = this;
         const bodyFormData = new FormData();
-        bodyFormData.append("auth_email", this.UserEmail);
+        bodyFormData.append("auth_email", this.AdminEmail);
         bodyFormData.append("auth_pass", this.Password);
-        bodyFormData.append("sign_in", true);
         await axios({
-          url: "http://localhost:80/sports_place/api/user_auth.php",
+          url: "http://localhost:80/sports_place/api/admin_auth.php",
           method: "post",
           data: bodyFormData,
 
           headers: { "Content-Type": "multipart/form-data" },
         })
           .then(function (response) {
+            console.log(response);
             sessionStorage.setItem(
-              "user_session_token",
-              response.data.user_session_token
+              "admin_session_token",
+              response.data.admin_session_token
             );
-            sessionStorage.setItem("user_email", component.UserEmail);
+            sessionStorage.setItem("admin_email", component.AdminEmail);
             sessionStorage.setItem("first_name", response.data.first_name);
             sessionStorage.setItem("last_name", response.data.last_name);
-            var pp =
-              "https://www.gravatar.com/avatar/" +
-              md5(component.UserEmail.toLowerCase());
 
-            sessionStorage.setItem("profile_pic", pp);
-            component.$router.push({ path: "/" });
-            component.AuthError = false;
+            component.$router.push({ path: "/admin" });
+            this.AuthError = false;
             return;
           })
           .catch(function (error) {
@@ -205,13 +176,6 @@ export default {
         document.forms["loginform"].reportValidity();
       }
     },
-  },
-  mounted() {
-    sessionStorage.setItem("user_session_token", "");
-    sessionStorage.setItem("user_email", "");
-    sessionStorage.setItem("user_first_name", "");
-    sessionStorage.setItem("user_last_name", "");
-    sessionStorage.setItem("user_profile_pic", "");
   },
 };
 </script>

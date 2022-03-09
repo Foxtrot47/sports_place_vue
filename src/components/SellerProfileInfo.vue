@@ -135,7 +135,7 @@ export default {
       );
       // Send a request to our API and receive json data containing all listings made by the seller
       axios({
-        url: "http://localhost:80/sports_place/helpers/seller_profile.php",
+        url: "http://localhost:80/sports_place/api/seller_profile.php",
         method: "post",
         data: bodyFormData,
         headers: { "Content-Type": "multipart/form-data" },

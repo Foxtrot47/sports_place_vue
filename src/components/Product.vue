@@ -1,95 +1,82 @@
 <template>
-  <div class="bg-gray-100">
+  <div class="bg-gray-100 h-full">
     <navbar />
-    <div class="bg-white p-4 pb-1 mt-2 a">
-      <div class="flex flex-row w-full h-5/6">
-        <div class="w-1/2 flex-none">
-          <div class="">
-            <div class="flex flex-row h-full">
+    <div class="flex flex-col gap-y-4 mx-20 my-4 h-max">
+      <div class="grid grid-cols-11 gap-x-2 justify-center p-4 bg-white">
+        <div class="col-span-5 flex flex-col gap-y-2">
+          <div class="flex flex-row gap-x-2 justify-end h-92">
+            <div class="w-20 flex flex-none flex-col gap-1 relative">
               <div
-                class="w-24 mr-4 flex flex-none flex-col gap-1 overflow-hidden"
+                class="bg-gray-500 absolute left-1/3 top-0 z-10 rounded-full px-1 text-white shadow up-scroll-button"
               >
-                <!--- Split the product_images value into individual string seperated by spaces
-                                  and make new div elements and images inside them using the splitted string as src
-                            -->
+                <i class="fa-solid fa-arrow-up"></i>
+              </div>
+              <div
+                class="bg-gray-500 absolute bottom-0 right-1/3 z-10 rounded-full px-1 text-white shadow down-scroll-button"
+              >
+                <i class="fa-solid fa-arrow-down"></i>
+              </div>
+              <div
+                class="flex flex-col gap-y-2 overflow-hidden transition ease-in-out delay-150"
+              >
                 <div
-                  v-for="image in productInfo.product_images"
-                  :key="image.image"
+                  v-for="(image, index) in productInfo.product_images"
+                  :key="image"
+                  @click="selectedImageId = index"
+                  class="hover:border-blue-500 hover:border-2"
                 >
-                  <img :src="image" />
+                  <img :src="image" class="hover:border-blue-500 border-2" />
                 </div>
               </div>
-              <div class="w-full flex justify-center px-12 p-4">
-                <img :src="productInfo.product_main_image" />
-              </div>
+            </div>
+            <div
+              class="flex justify-center px-12 p-4"
+              v-if="productInfo.product_images != undefined"
+            >
+              <img :src="productInfo.product_images[selectedImageId]" />
             </div>
           </div>
-        </div>
-        <div class="pl-8 p-2 w-full flex flex-col">
-          <p class="text-gray-500 text-sm">
-            Home >
-            <span> {{ productInfo.product_main_category }}></span>
-            >
-            <span>{{ productInfo.product_sub_category }} </span>
-            >
-            <span id="product_name_small">{{
-              productInfo.product_full_name
-            }}</span>
-          </p>
-          <p class="text-black text-xl py-2">
-            {{ productInfo.product_full_name }}
-          </p>
-          <div class="grid grid-cols-12 w-full">
-            <p class="text-2xl font-bold">$</p>
-            <p class="text-2xl font-bold col-span-10">
-              {{ productInfo.product_price }}
-            </p>
-            <p class="text-xl text-right"></p>
-          </div>
-          <hr class="border border-gray-100 w-full my-2" />
-          <p class="text-red-500 text-xl py-2 hidden" id="oot_indic">
-            Out of stock.
-          </p>
-          <div class="grid grid-cols-10 gap-2">
-            <div class="h-12 border border-gray-300 py-2">
-              <p class="text-center" id="quantity">1</p>
-            </div>
-            <div class="h-12 bg-blue-500 py-3 col-span-9 text-center">
-              <button class="text-white w-full h-full" onclick="dummy">
-                ADD TO CART
+
+          <div class="flex flex-row flex-none justify-end gap-x-1">
+            <div class="w-20 invisible">Hidden</div>
+            <div class="flex flex-row gap-x-2">
+              <button
+                class="text-xl text-white"
+                style="background-color: #ff9f00; padding: 18px 60px 18px 60px"
+                @click="addToCart('cart')"
+              >
+                <i class="fa-solid fa-cart-shopping"></i>
+                Add to Cart
+              </button>
+              <button
+                class="text-xl text-white"
+                style="background-color: #fb641b; padding: 18px 70px 18px 69px"
+                @click="addToCart('checkout')"
+              >
+                <i class="fas fa-bolt-lightning"></i>
+                Buy Now
               </button>
             </div>
           </div>
         </div>
+        <div class="col-span-6 flex flex-col gap-y-4 pl-2">
+          <div class="flex flex-row gap-x-2 text-gray-500">
+            <p>Home</p>
+            &gt;
+            <p>{{ catName }}</p>
+            &gt;
+            <p>{{ subCatName }}</p>
+            &gt;
+            <p class="truncate w-56">{{ productInfo.product_full_name }}</p>
+          </div>
+          <div class="font-product-sans text-xl">
+            {{ productInfo.product_full_name }}
+          </div>
+          <div class="text-3xl font-semibold">
+            ₹ {{ productInfo.product_price }}
+          </div>
+        </div>
       </div>
-    </div>
-    <hr class="bg-gray-300 border-t-2" />
-    <div
-      class="sticky bg-white h-14 w-full top-20-px pr-2 text-xl pt-1.5 drop-shadow-md filter z-30"
-    >
-      <button class="hover:text-blue-500 pt-2 px-3 align-middle">
-        Features
-      </button>
-      <button class="hover:text-blue-500 pt-2 pr-3 align-middle">
-        Reviews
-      </button>
-      <button class="hover:text-blue-500 pt-2 pr-3 align-middle">
-        Product Information
-      </button>
-      <button
-        class="pt-2 bg-blue-500 h-5/6 rounded py-1 px-2 text-white align-middle float-right"
-        onclick="dummy"
-      >
-        ADD TO CART
-      </button>
-      <button class="pt-2 pr-3 align-middle float-right">
-        <span>$</span>
-        <span> {{ productInfo.product_price }} </span>
-      </button>
-    </div>
-
-    <div class="bg-white pt-10">
-      <img :src="productInfo.product_features" />
     </div>
   </div>
 </template>
@@ -102,26 +89,81 @@ export default {
     return {
       productInfo: [],
       product_ID: this.productid,
+      catName: "",
+      subCatName: "",
+      selectedImageId: 0,
     };
   },
   components: { Navbar },
   props: ["productid"],
   mounted() {
     this.fetchProductInfo();
+
+    // Setting up up and right scroll buttons
+    const upScrollButton = document.getElementsByClassName("up-scroll-button");
+    const downScrollButton =
+      document.getElementsByClassName("down-scroll-button");
+    var i;
+    for (i = 0; i < upScrollButton.length; i++) {
+      upScrollButton[i].addEventListener("click", function () {
+        console.log(this.parentElement);
+        this.parentElement.lastChild.scrollTop -= 100;
+      });
+    }
+    for (i = 0; i < downScrollButton.length; i++) {
+      downScrollButton[i].addEventListener("click", function () {
+        this.parentElement.lastChild.scrollTop += 100;
+      });
+    }
   },
   methods: {
     fetchProductInfo() {
       const component = this;
-      console.log(this.productid);
       // Send a request to our API and receive json data containing all listings made by the seller
       axios({
-        url: "http://localhost:80/sports_place/helpers/productinfo.php",
+        url: "http://localhost:80/sports_place/api/productinfo.php",
         method: "get",
         params: {
           productid: component.product_ID,
         },
       }).then(function (response) {
         component.productInfo = response.data;
+        component.catName =
+          component.$cat_list.categories[
+            response.data.product_main_category
+          ].catname;
+        component.subCatName =
+          component.$cat_list.subcategories[
+            response.data.product_sub_category
+          ].subcatname;
+      });
+    },
+    addToCart(path) {
+      if (!sessionStorage.getItem("user_session_token")) {
+        this.$router.push({
+          path: "/users/login",
+        });
+        return;
+      }
+      const component = this;
+      const bodyFormData = new FormData();
+      bodyFormData.append(
+        "session_token",
+        sessionStorage.getItem("user_session_token")
+      );
+      bodyFormData.append("mode", "add");
+      bodyFormData.append("productid", this.product_ID);
+      bodyFormData.append("quantity", 1);
+      // Send a request to our API to add the product to cart
+      this.$axios({
+        url: "http://localhost:80/sports_place/api/listcart.php",
+        method: "post",
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" },
+      }).then(function () {
+        component.$router.push({
+          path: `/users/${path}`,
+        });
       });
     },
   },

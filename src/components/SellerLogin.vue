@@ -51,7 +51,7 @@
           <p
             class="text-xl text-center text-gray-600 dark:text-gray-200 font-product-sans"
           >
-            Welcome back!
+            Seller Login
           </p>
 
           <div class="flex items-center justify-between mt-4">
@@ -159,7 +159,7 @@ export default {
         bodyFormData.append("auth_pass", this.Password);
         bodyFormData.append("sign_in", true);
         await axios({
-          url: "http://localhost:80/sports_place/helpers/seller_auth.php",
+          url: "http://localhost:80/sports_place/api/seller_auth.php",
           method: "post",
           data: bodyFormData,
 
@@ -177,7 +177,7 @@ export default {
               response.data.first_name
             );
             sessionStorage.setItem("seller_last_name", response.data.last_name);
-            component.$router.push({ path: "/sellers/" });
+            component.$router.push({ path: "/sellers/mylistings" });
             this.AuthError = false;
             return;
           })

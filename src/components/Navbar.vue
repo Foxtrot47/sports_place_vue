@@ -1,71 +1,42 @@
 <template>
-  <nav class="bg-white shadow text-black top-0 pr-4 z-40">
+  <nav
+    class="bg-white dark:bg-gray-900 shadow text-black dark:text-white top-0 pr-4 z-20 sticky backdrop-filter backdrop-blur-lg bg-opacity-60 border-b border-gray-200"
+  >
     <div class="w-full py-2 mx-2">
-      <div class="md:flex md:items-center md:justify-center gap-y-4">
+      <div class="md:flex flex-row items-center md:justify-around gap-y-4">
         <div class="flex items-center flex-nowrap">
-          <div class="text-xl font-semibold text-gray-700">
+          <div class="text-xl font-semibold">
             <router-link
-              class="text-2xl font-bold lg:text-4xl hover:text-gray-700 dark:hover:text-gray-300"
+              class="text-2xl font-bold lg:text-4xl text-gray-700 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 font-product-sans"
               to="/"
               >The Sports Place</router-link
             >
-          </div>
-          <!-- Mobile menu button -->
-          <div class="flex md:hidden">
-            <button
-              type="button"
-              class="text-gray-500 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400"
-              aria-label="toggle menu"
-            >
-              <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
-                <path
-                  fill-rule="evenodd"
-                  d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
-                ></path>
-              </svg>
-            </button>
           </div>
         </div>
         <div class="w-1/2 h-10 ml-3">
           <input
             type="text"
             name="product_name"
-            class="outline-none rounded-full bg-gray-200 h-full p-2"
+            class="outline-none rounded-full bg-gray-200 h-full p-2 dark:bg-gray-600"
             style="width: 100%"
             v-model="SearchKeyword"
             v-on:keypress.enter="search()"
+            placeholder="Seach for products and more"
           />
         </div>
-
-        <!--
-                    <div class="flex items-center mt-4 ml-4 md:mt-0">
-                        <button type="button" class="flex items-center focus:outline-none h-14 w-14">
-                            <a href="profile_info.php">
-                                <img src="<?php echo $_SESSION[
-                                  "grav_url"
-                                ]; ?>" class="object-cover w-full h-full rounded-full" alt="avatar">
-                            </a>
-                        </button>
-                    </div>
-            -->
-
         <div v-if="session_token" class="relative ml-20 inline-block dropdown">
           <button
             class="flex flex-row items-center w-12 h-12 ml-4 rounded-full"
           >
-            <img
-              :src="profile_pic"
-              class="object-cover w-full h-full rounded-full"
-              alt="avatar"
-            />
+            <img :src="profile_pic" class="rounded-full w-16" alt="avatar" />
           </button>
           <div
             class="hidden absolute z-10 left-0 w-full pt-4 origin-top-right rounded-md md:w-64 dropdown-content"
           >
-            <div class="bg-white rounded-md shadow-lg dark-mode:bg-gray-800">
-              <a
-                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
-                href="profile_info.php"
+            <div class="bg-white rounded-md shadow-lg dark:bg-gray-900">
+              <router-link
+                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark:hover:bg-gray-600 dark:hover:text-white dark:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
+                to="/users/profile"
               >
                 <svg
                   class="inline"
@@ -80,11 +51,11 @@
                     d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
                   />
                 </svg>
-                My Profile</a
+                My Profile</router-link
               >
-              <hr class="bg-gray-100" />
+              <hr class="dark:border-gray-600" />
               <router-link
-                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
+                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark:hover:bg-gray-600 dark:focus:bg-gray-600 dark:focus:text-white dark:hover:text-white dark:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
                 to="/users/orders"
               >
                 <svg
@@ -102,10 +73,10 @@
                 </svg>
                 My Orders</router-link
               >
-              <hr class="bg-gray-100" />
-              <a
-                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
-                href="helpers/logout.php"
+              <hr class="dark:border-gray-600" />
+              <button
+                @click="this.logout()"
+                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark:hover:bg-gray-600 dark:focus:bg-gray-600 dark:focus:text-white dark:hover:text-white dark:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
               >
                 <svg
                   class="inline"
@@ -123,8 +94,8 @@
                     />
                   </g>
                 </svg>
-                Logout</a
-              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -144,29 +115,35 @@
         <div v-if="session_token">
           <router-link
             to="/users/cart/"
-            class="ml-5 text-2xl align-center relative"
+            class="text-2xl relative font-product-sans flex flex-row items-center justify-center"
           >
-            <svg
-              class="inline w-10 h-10"
-              xmlns="http://www.w3.org/2000/svg"
-              height="24px"
-              viewBox="0 0 24 24"
-              width="24px"
-              fill="#000000"
-            >
-              <path d="M0 0h24v24H0z" fill="none" />
-              <path
-                d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"
-              />
-            </svg>
+            <i class="fa-light fa-cart-shopping pr-2"></i>
             Cart
             <span
               v-if="ItemsinCart > 0"
-              class="items-center justify-center px-1 text-xs text-red-100 bg-red-600 rounded-full absolute left-0"
+              class="items-center justify-center px-1 text-xs text-red-100 bg-red-600 rounded-full absolute top-0 left-0"
             >
               {{ ItemsinCart }}
             </span>
           </router-link>
+        </div>
+        <div class="relative inline-block dropdown flex flex-row items-center">
+          <span class="text-2xl font-product-sans"
+            >More<span class="text-xs font-semibold pl-2">&#11206;</span></span
+          >
+          <div
+            class="hidden absolute z-10 right-0 top-8 pt-4 rounded-md w-36 dropdown-content"
+          >
+            <div class="bg-white rounded-md shadow-lg dark:bg-gray-900">
+              <router-link
+                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark:hover:bg-gray-600 dark:hover:text-white dark:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
+                to="/sellers/"
+              >
+                <i class="fa-solid fa-bag-shopping"></i>
+                Sell here</router-link
+              >
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -186,7 +163,7 @@ export default {
   },
   mounted() {
     this.session_token = sessionStorage.getItem("user_session_token");
-    this.profile_pic = sessionStorage.getItem("profile_pic");
+    this.profile_pic = sessionStorage.getItem("user_profile_pic");
   },
   methods: {
     search() {
@@ -194,6 +171,19 @@ export default {
         path: "/search",
         query: { search_keyword: this.SearchKeyword },
       });
+    },
+    logout() {
+      sessionStorage.setItem("user_session_token", "");
+      sessionStorage.setItem("seller_session_token", "");
+      sessionStorage.setItem("user_email", "");
+      sessionStorage.setItem("first_name", "");
+      sessionStorage.setItem("last_name", "");
+      this.$router.push({
+        path: "/",
+        query: {},
+      });
+      // due to someone unknown reason i need to reload the site
+      location.reload();
     },
   },
 };
