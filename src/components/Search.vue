@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-100">
-    <navbar />
+    <Navbar :search_keyword="`${search_keyword}`" />
     <div class="flex row gap-x-2 mt-2">
       <div class="w-80 p-4 flex-none bg-white">
         <div class="pb-3">
@@ -167,6 +167,7 @@ import * as noUiSlider from "nouislider";
 import "nouislider/dist/nouislider.css";
 
 export default {
+  // eslint-disable-next-line vue/multi-word-component-names
   name: "Search",
   data() {
     return {
@@ -234,19 +235,18 @@ export default {
       this.MinLimit = this.min_limit ? this.min_limit : 0;
       this.MaxLimit = this.max_limit ? this.max_limit : 0;
       const component = this;
-      // Send a request to our API and receive json data containing all listings made by the seller
-      await this.$axios({
-        url: "http://localhost:80/sports_place/api/search.php",
-        method: "get",
-        params: {
-          catid: component.catid,
-          subcatid: component.subcatid,
-          product_name: component.searchkeyword,
-          sortby: component.sortby,
-          min_limit: component.min_limit,
-          max_limit: component.max_limit,
-        },
-      })
+      // Send a request to our  and receive json data containing all listings made by the seller
+      await this.$req
+        .get("/search.php", {
+          params: {
+            catid: component.catid,
+            subcatid: component.subcatid,
+            product_name: component.searchkeyword,
+            sortby: component.sortby,
+            min_limit: component.min_limit,
+            max_limit: component.max_limit,
+          },
+        })
         .then(function (response) {
           component.productsList = response.data.product_list;
           component.DefaultMaxLimit = Number(response.data.max_limit);
@@ -356,7 +356,7 @@ export default {
     $route(to, from) {
       if (to.query !== from.query) {
         var comp = this;
-        // Call the api with a bit of delay for the prop changes to reflect
+        // Call the  with a bit of delay for the prop changes to reflect
         setTimeout(function () {
           comp.runSearch();
         }, 100);

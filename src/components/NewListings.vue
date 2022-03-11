@@ -33,9 +33,14 @@
       <!-- Side Nav Start -->
       <div class="flex flex-row flex-initial h-full">
         <div
-          class="w-3/12 section px-5 py-4 mr-2 flex flex-col gap-y-6 bg-white rounded-xl shadow-sm text-lg"
+          class="w-3/12 section mr-2 flex flex-col bg-white rounded-xl shadow-sm text-lg"
         >
-          <div class="flex flex-row text-lg items-center">
+          <div
+            class="flex flex-row text-lg items-center py-6 px-5 rounded-r-xl border-bottom-2 border-gray-500 hover:bg-gray-100"
+            :class="{
+              'bg-blue-500 text-white hover:bg-blue-500': CurrentSection == 1,
+            }"
+          >
             <svg
               class="mr-2"
               width="1.25rem"
@@ -58,8 +63,12 @@
               Select Category
             </button>
           </div>
-          <hr class="border-top border-gray-300" />
-          <div class="flex flex-row items-center">
+          <div
+            class="flex flex-row text-lg items-center py-6 px-5 border-bottom-2 border-gray-500 hover:bg-gray-100"
+            :class="{
+              'bg-blue-500 text-white hover:bg-blue-500': CurrentSection == 2,
+            }"
+          >
             <i class="fas fa-tag mr-2"></i>
             <button
               class="text-on-surface"
@@ -72,7 +81,12 @@
             </button>
           </div>
           <hr class="border-top border-gray-300" />
-          <div class="flex flex-row items-center">
+          <div
+            class="flex flex-row text-lg items-center py-6 px-5 rounded-r-xl border-bottom-2 border-gray-500 hover:bg-gray-100"
+            :class="{
+              'bg-blue-500 text-white hover:bg-blue-500': CurrentSection == 3,
+            }"
+          >
             <i class="fas fa-info mr-4"></i>
             <button
               class="text-on-surface"
@@ -122,6 +136,7 @@
                   :key="1"
                   v-show="productInfo.product_brand != ''"
                   class="flex flex-col w-1/2 text-center p-6 pt-20 gap-y-4 bg-white rounded-lg border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700"
+                  @click="switchsection(3)"
                 >
                   <i class="fas fa-check-circle text-green-500"></i>
                   <p class="text-xl font-product-sans">
@@ -129,7 +144,10 @@
                   </p>
                   <p>You can start Selling under this brand</p>
                   <div>
-                    <button class="px-4 py-2 bg-blue-500 text-white max-w-20">
+                    <button
+                      class="px-4 py-2 bg-blue-500 text-white max-w-20"
+                      type="button"
+                    >
                       Continue
                     </button>
                   </div>
@@ -207,17 +225,18 @@
                   <div
                     class="bg-white w-full mr-5 py-4 flex flex-col items-center pt-20 gap-y-5 rounded-xl h-full w-full shadow-sm"
                     v-if="productInfo.product_sub_category > 0"
+                    @click="switchsection(2)"
                   >
                     <i class="fas fa-check-circle text-green-500"></i>
                     <p class="text-xl font-product-sans">
-                      {{
-                        SubCategoryList[productInfo.product_sub_category - 1]
-                          .subcatname
-                      }}
+                      {{ subCatName }}
                     </p>
                     <p>You can start Selling under this subcategory</p>
                     <div>
-                      <button class="px-4 py-2 bg-blue-500 text-white max-w-20">
+                      <button
+                        class="px-4 py-2 bg-blue-500 text-white max-w-20"
+                        type="button"
+                      >
                         Continue
                       </button>
                     </div>
@@ -235,7 +254,7 @@
               v-show="CurrentSection == 3"
             >
               <div
-                class="flex flex-col px-6 py-5 rounded-xl gap-y-4 w-full bg-white"
+                class="flex flex-col px-6 py-5 rounded-xl gap-y-4 w-full bg-white h-max"
               >
                 <span class="text-2xl">Listing Photos</span>
                 <div class="flex flex-col gap-y-2">
@@ -258,16 +277,6 @@
                     name="images"
                   ></textarea>
                 </div>
-                <div class="flex flex-col gap-y-2">
-                  <span class="text-sm">Enter Feature Image Url</span>
-                  <textarea
-                    placeholder="Enter URL"
-                    required
-                    class="focus:outline-0 border rounded bg-white border-outline py-2 px-2 w-full h-15 text-sm"
-                    v-model="productInfo.product_features"
-                    name="feature-image"
-                  ></textarea>
-                </div>
               </div>
               <div class="flex flex-col gap-y-2">
                 <div class="px-4 py-5 bg-white rounded-xl md-label-large">
@@ -278,7 +287,7 @@
                   </div>
                   <div class="flex flex-row gap-x-4">
                     <div class="flex flex-col gap-y-1">
-                      <span class="md-label-medium">MRP</span>
+                      <span class="md-label-medium">Price</span>
                       <input
                         type="text"
                         name="listing_price"
@@ -345,17 +354,15 @@
                     </div>
                   </div>
                   <div class="flex flex-row gap-x-4">
-                    <!--
-                  <div class="flex flex-col gap-y-1">
-                    <span class="md-label-medium">Color</span>
-                    <input
-                      type="text"
-                      name="listing_color"
-                      v-model="listing_color"
-                      class="focus:outline-0 border rounded bg-white border-outline py-2 px-2 w-64"
-                    />
-                  </div>
-                  -->
+                    <div class="flex flex-col gap-y-1">
+                      <span class="md-label-medium">Color</span>
+                      <input
+                        type="text"
+                        name="listing_color"
+                        v-model="productInfo.product_color"
+                        class="focus:outline-0 border rounded bg-white border-outline py-2 px-2 w-64"
+                      />
+                    </div>
                     <div class="flex flex-col gap-y-1">
                       <span class="md-label-medium">For</span>
                       <select
@@ -406,8 +413,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "NewListings",
   data() {
@@ -422,6 +427,7 @@ export default {
       },
       CategoryList: this.$cat_list["categories"],
       SubCategoryList: this.$cat_list["subcategories"],
+      subCatName: "",
       PrevCategoryElement: null,
       PrevSubCategoryElement: null,
       CurrentSection: 1,
@@ -470,18 +476,25 @@ export default {
       bodyFormData.append("mode", "view");
       bodyFormData.append("product_id", 4);
       bodyFormData.append("minimal", 1);
-      await axios({
-        url: "http://localhost:80/sports_place/api/listing_helper.php",
+      const config = {
+        url: "/listing_helper.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
-        component.productInfo = response.data;
-        component.productInfo.product_main_category =
-          response.data.product_main_category;
-      });
+      };
+      await this.$req
+        .request(config)
+        .then(function (response) {
+          component.productInfo = response.data;
+          component.productInfo.product_main_category =
+            response.data.product_main_category;
+        })
+        .catch(function (error) {
+          if (error.response.statusText == "Session Token Invalid") {
+            this.$router.push("/sellers/login");
+          }
+        });
     },
-    sendData() {
+    async sendData() {
       var component = this;
       if (document.forms["listingform"].checkValidity()) {
         var bodyFormData = new FormData();
@@ -507,10 +520,6 @@ export default {
           "listing_images_urls",
           this.productInfo.product_images
         );
-        bodyFormData.append(
-          "listing_feature_url",
-          this.productInfo.product_features
-        );
         bodyFormData.append("listing_price", this.productInfo.product_price);
         bodyFormData.append(
           "listing_status",
@@ -527,14 +536,19 @@ export default {
           "listing_subcat",
           this.productInfo.product_sub_category
         );
+        bodyFormData.append("listing_color", this.productInfo.product_color);
+        bodyFormData.append(
+          "listing_quantity",
+          this.productInfo.product_quantity
+        );
         bodyFormData.append("listing_for", this.productInfo.product_fitfor);
 
-        axios({
-          url: "http://localhost:80/sports_place/api/listing_helper.php",
+        const config = {
+          url: "/listing_helper.php",
           method: "post",
           data: bodyFormData,
-          headers: { "Content-Type": "multipart/form-data" },
-        }).then(function () {
+        };
+        await this.$req.request(config).then(function () {
           component.$router.push({ path: "/sellers/mylistings" });
         });
       } else {
@@ -542,10 +556,6 @@ export default {
       }
     },
     selectcategory(category_type, element, id) {
-      if (id === undefined) {
-        console.log(element);
-        return;
-      }
       if (category_type === "subcat") {
         if (this.PrevSubCategoryElement != null) {
           try {
@@ -557,11 +567,15 @@ export default {
           }
         }
         this.productInfo.product_sub_category = id;
+        this.SubCategoryList.forEach((element) => {
+          if (id === element.subcatid) {
+            this.subCatName = element.subcatname;
+          }
+        });
         this.PrevSubCategoryElement = element;
         document.getElementById("section_btn2").disabled = false;
       } else {
         if (this.PrevCategoryElement != null) {
-          console.log(this.PrevCategoryElement);
           this.PrevCategoryElement.classList.remove("bg-blue-500");
           this.PrevCategoryElement.classList.remove("text-white");
           this.PrevCategoryElement.classList.add("hover:bg-blue-400");

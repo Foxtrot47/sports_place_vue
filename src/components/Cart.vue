@@ -269,7 +269,7 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 export default {
-  name: "Cart",
+  name: "UserCart",
   data() {
     return {
       cartItems: [],
@@ -280,7 +280,7 @@ export default {
     Navbar,
   },
   methods: {
-    fetchOrders() {
+    async fetchOrders() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
@@ -288,13 +288,13 @@ export default {
         sessionStorage.getItem("user_session_token")
       );
       bodyFormData.append("mode", "list");
-      // Send a request to our API and receive json data containing all listings made by the seller
-      this.$axios({
-        url: "http://localhost:80/sports_place/api/listcart.php",
+      // Send a request to our  and receive json data containing all listings made by the seller
+      const config = {
+        url: "/listcart.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
+      };
+      await this.$req.request(config).then(function (response) {
         component.cartItems = response.data.orders;
         component.totalPrice = response.data.total_price;
         component.cartItems.forEach((cartItem, index) => {
@@ -320,13 +320,14 @@ export default {
       bodyFormData.append("productid", productId);
       bodyFormData.append("quantity", this.cartItems[id].quantity);
       bodyFormData.append("save_for_later", this.cartItems[id].save_for_later);
-      // Send a request to our API and receive json data containing all listings made by the seller
-      this.$axios({
-        url: "http://localhost:80/sports_place/api/listcart.php",
+      // Send a request to our  and receive json data containing all listings made by the seller
+      const config = {
+        url: "/listcart.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+      };
+      await this.$req
+        .request(config)
         .then(function (response) {
           component.cartItems = null;
           component.cartItems = response.data.orders;
@@ -352,12 +353,12 @@ export default {
       );
       bodyFormData.append("productid", productID);
       bodyFormData.append("minimal", "1");
-      await this.$axios({
-        url: "http://localhost:80/sports_place/api/productinfo.php",
+      const config = {
+        url: "/productinfo.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
+      };
+      await this.$req.request(config).then(function (response) {
         component.cartItems[index].product_full_name =
           response.data.product_full_name;
         component.cartItems[index].product_price = response.data.product_price;

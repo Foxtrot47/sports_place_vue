@@ -74,7 +74,10 @@
           <div class="px-4 py-3 flex flex-row gap-x-4 accordion items-center">
             <span class="text-blue-500 px-2 heading-no">2</span>
             <span class="font-product-sans">Order Summary</span>
-            <i class="far fa-check status-mark" v-if="cartItems"></i>
+            <i
+              class="far fa-check status-mark"
+              v-if="cartItems && summaryConfirmed"
+            ></i>
           </div>
           <div class="panel bg-white flex flex-col">
             <div v-for="(cartItem, index) in cartItems" :key="cartItem.id">
@@ -145,9 +148,9 @@
                 type="button"
                 class="bg-blue-500 text-white px-20 py-3 ml-14 rounded-full w-72"
                 v-if="cartItems"
-                @click="openAccord(2)"
+                @click="openAccord(2) & (summaryConfirmed = true)"
               >
-                Deliver Here
+                Continue
               </button>
             </div>
           </div>
@@ -271,7 +274,7 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 export default {
-  name: "Billing",
+  name: "User-Billing",
   data() {
     return {
       cartItems: [],
@@ -279,13 +282,14 @@ export default {
       addressList: [],
       selectedAddr: 0,
       selectedPayment: "",
+      summaryConfirmed: false,
     };
   },
   components: {
     Navbar,
   },
   methods: {
-    fetchCartItems() {
+    async fetchCartItems() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
@@ -294,12 +298,12 @@ export default {
       );
       bodyFormData.append("mode", "list");
       // Fetch all the cartitems
-      this.$axios({
-        url: "http://localhost:80/sports_place/api/listcart.php",
+      const config = {
+        url: "/listcart.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
+      };
+      await this.$req.request(config).then(function (response) {
         component.cartItems = response.data.orders;
         component.cartItems.forEach((cartItem, index) => {
           component.fetchFullInfo(cartItem.product_id, index);
@@ -309,19 +313,15 @@ export default {
     // Fetch product info of individual products
     async fetchFullInfo(productID, index) {
       const component = this;
-      const bodyFormData = new FormData();
-      bodyFormData.append(
-        "session_token",
-        sessionStorage.getItem("user_session_token")
-      );
-      bodyFormData.append("productid", productID);
-      bodyFormData.append("minimal", "1");
-      await this.$axios({
-        url: "http://localhost:80/sports_place/api/productinfo.php",
-        method: "post",
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
+      const config = {
+        url: "/productinfo.php",
+        method: "get",
+        params: {
+          productid: productID,
+          minimal: 1,
+        },
+      };
+      await this.$req.request(config).then(function (response) {
         component.cartItems[index].product_full_name =
           response.data.product_full_name;
         component.cartItems[index].product_price = response.data.product_price;
@@ -339,7 +339,7 @@ export default {
       else if (change == "increment") this.cartItems[id].quantity++;
       this.sendReq(id, productid);
     },
-    sendReq(id, productId) {
+    async sendReq(id, productId) {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
@@ -351,12 +351,13 @@ export default {
       bodyFormData.append("quantity", this.cartItems[id].quantity);
       bodyFormData.append("save_for_later", this.cartItems[id].save_for_later);
       // Send request to update quantity and status of a product
-      this.$axios({
-        url: "http://localhost:80/sports_place/api/listcart.php",
+      // Fetch all the cartitems
+      const config = {
+        url: "/listcart.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
+      };
+      await this.$req.request(config).then(function (response) {
         component.cartItems = response.data;
         component.cartItems.total_price = response.data.total_price;
       });
@@ -398,7 +399,7 @@ export default {
         panel.style.maxHeight = panel.scrollHeight + "px";
       }, 20);
     },
-    fetchAddress() {
+    async fetchAddress() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
@@ -407,15 +408,16 @@ export default {
       );
       bodyFormData.append("mode", "list");
       // Send request to fetch all saved address of the user
-      this.$axios({
-        url: "http://localhost:80/sports_place/api/listaddress.php",
+      const config = {
+        url: "/listaddress.php",
         method: "post",
         data: bodyFormData,
-      }).then(function (response) {
+      };
+      await this.$req.request(config).then(function (response) {
         component.addressList = response.data;
       });
     },
-    commitOrder() {
+    async commitOrder() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
@@ -424,15 +426,15 @@ export default {
       );
       bodyFormData.append("pmethod", this.selectedPayment);
       bodyFormData.append("addressid", this.selectedAddr);
-      // Send a request to our API to confirm the order
+      // Send a request to our  to confirm the order
       // Do note we are not actually implementing any transactions here
       // It is out of scope of this project
-      this.$axios({
-        url: "http://localhost:80/sports_place/api/commitorder.php",
+      const config = {
+        url: "/commitorder.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function () {
+      };
+      await this.$req.request(config).then(function () {
         component.$router.push({
           path: "/users/orders",
         });

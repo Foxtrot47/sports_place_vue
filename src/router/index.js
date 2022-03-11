@@ -21,6 +21,8 @@ import Billing from "../components/Billing.vue";
 import AdminLogin from "../views/Admin/AdminLogin.vue";
 import AdminApprovals from "../views/Admin/AdminApprovals.vue";
 
+import ErrorPage from "../views/ErrorPage.vue";
+
 const routes = [
   {
     path: "/",
@@ -116,6 +118,11 @@ const routes = [
     path: "/admin/approvals",
     name: "AdminApprovals",
     component: AdminApprovals,
+  },
+  {
+    path: "/:catchAll(.*)",
+    name: "ErrorPage",
+    component: ErrorPage,
   },
 ];
 

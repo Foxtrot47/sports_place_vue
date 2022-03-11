@@ -143,7 +143,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import md5 from "md5";
 
 export default {
@@ -165,26 +164,26 @@ export default {
         bodyFormData.append("auth_email", this.UserEmail);
         bodyFormData.append("auth_pass", this.Password);
         bodyFormData.append("sign_in", true);
-        await axios({
-          url: "http://localhost:80/sports_place/api/user_auth.php",
+        const config = {
+          url: "/user_auth.php",
           method: "post",
           data: bodyFormData,
-
-          headers: { "Content-Type": "multipart/form-data" },
-        })
+        };
+        await this.$req
+          .request(config)
           .then(function (response) {
             sessionStorage.setItem(
               "user_session_token",
               response.data.user_session_token
             );
             sessionStorage.setItem("user_email", component.UserEmail);
-            sessionStorage.setItem("first_name", response.data.first_name);
-            sessionStorage.setItem("last_name", response.data.last_name);
+            sessionStorage.setItem("user_first_name", response.data.first_name);
+            sessionStorage.setItem("user_last_name", response.data.last_name);
             var pp =
               "https://www.gravatar.com/avatar/" +
               md5(component.UserEmail.toLowerCase());
 
-            sessionStorage.setItem("profile_pic", pp);
+            sessionStorage.setItem("user_profile_pic", pp);
             component.$router.push({ path: "/" });
             component.AuthError = false;
             return;

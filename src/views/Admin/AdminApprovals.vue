@@ -2,6 +2,9 @@
   <div class="flex flex-col h-full bg-gray-200">
     <div class="flex flex-row flex-none justify-between items-end p-4 bg-white">
       <div class="flex flex-col gap-y-2 font-product-sans">
+        <router-link to="/" class="text-blue-500 hover:text-blue-400">
+          Home <span class="text-black hover:text-black"> &gt; </span>
+        </router-link>
         <p class="text-3xl text-black">Approve Sellers</p>
       </div>
     </div>
@@ -116,8 +119,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "AdminApprovals",
   data() {
@@ -126,7 +127,7 @@ export default {
     };
   },
   methods: {
-    fetchSellersList() {
+    async fetchSellersList() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
@@ -134,17 +135,16 @@ export default {
         sessionStorage.getItem("admin_session_token")
       );
       bodyFormData.append("mode", "list");
-      // Send a request to our API and receive json data containing all listings made by the seller
-      axios({
-        url: "http://localhost:80/sports_place/api/admin_actions.php",
+      const config = {
+        url: "/admin_actions.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
+      };
+      await this.$req.request(config).then(function (response) {
         component.sellersList = response.data;
       });
     },
-    changeSellerStatus(seller_id, response) {
+    async changeSellerStatus(seller_id, response) {
       const component = this;
       if (seller_id == null) return;
       const bodyFormData = new FormData();
@@ -156,12 +156,12 @@ export default {
       bodyFormData.append("seller_id", seller_id);
       bodyFormData.append("admin_response", response);
 
-      axios({
-        url: "http://localhost:80/sports_place/api/admin_actions.php",
+      const config = {
+        url: "/admin_actions.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function () {
+      };
+      await this.$req.request(config).then(function () {
         component.fetchSellersList();
       });
     },

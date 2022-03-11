@@ -1,15 +1,12 @@
 module.exports = {
-  darkMode: "class",
-  purge: ["./src/**/*.{ts,tsx}"],
+  content: ["./public/**/*.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      boxShadow: {
-        lvl1: "0px 1px 5px 0px rgba(0, 0, 0, 0.2),0px 2px 2px 0px rgba(0, 0, 0, 0.14),0px 3px 1px -2px rgba(0, 0, 0, 0.12)",
-      },
       fontFamily: {
-        inter: "inter",
-        "product-sans": "Product Sans",
+        "Product Sans": "product-sans",
       },
     },
   },
+  plugins: [],
+  darkMode: "class",
 };

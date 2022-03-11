@@ -134,13 +134,22 @@
           <div
             class="hidden absolute z-10 right-0 top-8 pt-4 rounded-md w-36 dropdown-content"
           >
-            <div class="bg-white rounded-md shadow-lg dark:bg-gray-900">
+            <div
+              class="bg-white rounded-md shadow-lg dark:bg-gray-900 flex flex-col"
+            >
               <router-link
                 class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark:hover:bg-gray-600 dark:hover:text-white dark:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
-                to="/sellers/"
+                to="/sellers/mylistings"
               >
                 <i class="fa-solid fa-bag-shopping"></i>
                 Sell here</router-link
+              >
+              <router-link
+                class="block px-3 py-3 mt-2 text-md text-semibold rounded-md dark:hover:bg-gray-600 dark:hover:text-white dark:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
+                to="/admin/login"
+              >
+                <i class="fa-solid fa-user-police"></i>
+                Admin Login</router-link
               >
             </div>
           </div>
@@ -152,15 +161,16 @@
 
 <script>
 export default {
-  name: "Navbar",
+  name: "DefaultNavbar",
   data() {
     return {
       session_token: "",
       ItemsinCart: 0,
       profile_pic: "",
-      SearchKeyword: "",
+      SearchKeyword: this.search_keyword,
     };
   },
+  props: ["search_keyword"],
   mounted() {
     this.session_token = sessionStorage.getItem("user_session_token");
     this.profile_pic = sessionStorage.getItem("user_profile_pic");

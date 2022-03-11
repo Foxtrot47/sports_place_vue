@@ -110,8 +110,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "SellerProfileInfo",
   data() {
@@ -126,20 +124,20 @@ export default {
     };
   },
   methods: {
-    fetchData() {
+    async fetchData() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
         "seller_session_token",
         sessionStorage.getItem("seller_session_token")
       );
-      // Send a request to our API and receive json data containing all listings made by the seller
-      axios({
-        url: "http://localhost:80/sports_place/api/seller_profile.php",
+      // Send a request to our  and receive json data containing all listings made by the seller
+      const config = {
+        url: "/seller_profile.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
+      };
+      await this.$req.request(config).then(function (response) {
         component.FirstName = response.data.first_name;
         component.LastName = response.data.last_name;
         component.Gender = response.data.seller_gender;

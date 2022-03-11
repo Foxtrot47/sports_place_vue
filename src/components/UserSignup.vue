@@ -120,7 +120,7 @@
                 pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
                 title="Minimum eight characters, at least one letter, one number and one special character"
                 v-model="ConfirmPassword"
-                @change="check_passwords"
+                @keyup="check_passwords"
               />
             </div>
             <br />
@@ -129,7 +129,7 @@
                 type="button"
                 id="submit_button"
                 class="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-gray-700 rounded hover:bg-gray-600 focus:outline-none focus:bg-gray-600 font-product-sans"
-                @click="Submit"
+                @click="Signup()"
               >
                 Signup
               </button>
@@ -154,8 +154,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "UserSignup",
   data() {
@@ -170,7 +168,7 @@ export default {
     };
   },
   methods: {
-    async Submit() {
+    async Signup() {
       if (document.forms["signup_form"].checkValidity()) {
         const component = this;
         const bodyFormData = new FormData();
@@ -179,22 +177,17 @@ export default {
         bodyFormData.append("auth_email", this.UserEmail);
         bodyFormData.append("auth_pass", this.Password);
         bodyFormData.append("sign_in", false);
-        await axios({
-          url: "http://localhost:80/sports_place/api/user_auth.php",
+        const config = {
+          url: "/user_auth.php",
           method: "post",
           data: bodyFormData,
-
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-          // Below line is needed because without response  provided as arguement
-          // axios will always execute below statement block even in case of an error
-          // eslint-disable-next-line no-unused-vars
-          .then(function (response) {
-            console.log(response);
+        };
+        await this.$req
+          .request(config)
+          .then(function () {
             component.AuthError = false;
-            component.$router.push({ path: "/users/login" });
+            component.autologin();
             // axios for unknown reason executes catch block even tho no error happened
-            return;
           })
           .catch(function (error) {
             if (error.response.status == 403) {
@@ -215,6 +208,38 @@ export default {
       } else {
         document.getElementById("signup_confirm_pass").setCustomValidity("");
       }
+    },
+    async autologin() {
+      const component = this;
+      const bodyFormData = new FormData();
+      bodyFormData.append("auth_email", this.UserEmail);
+      bodyFormData.append("auth_pass", this.Password);
+      bodyFormData.append("sign_in", true);
+      const config = {
+        url: "/user_auth.php",
+        method: "post",
+        data: bodyFormData,
+      };
+      await this.$req
+        .request(config)
+        .then(function (response) {
+          sessionStorage.setItem(
+            "user_session_token",
+            response.data.user_session_token
+          );
+          sessionStorage.setItem("user_email", component.UserEmail);
+          sessionStorage.setItem("user_first_name", response.data.first_name);
+          sessionStorage.setItem("user_last_name", response.data.last_name);
+          component.$router.push({ path: "/" });
+          this.AuthError = false;
+          return;
+        })
+        .catch(function (error) {
+          if (error.response.status == 403) {
+            component.AuthError = true;
+            component.AuthErrorMsg = "Failed to Automatically Login";
+          }
+        });
     },
   },
 };

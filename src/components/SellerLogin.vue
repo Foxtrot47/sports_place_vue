@@ -2,7 +2,7 @@
   <div class="static">
     <div class="absolute w-full mt-10" v-show="AuthError">
       <div
-        class="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800"
+        class="flex w-max w-min-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800"
       >
         <div class="flex items-center justify-center w-12 bg-red-500">
           <svg
@@ -23,7 +23,7 @@
               >Error</span
             >
             <p class="text-sm text-gray-600 dark:text-gray-200">
-              Invalid Email or Password
+              {{ AuthErrorMsg }}
             </p>
           </div>
         </div>
@@ -139,8 +139,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "SellerLogin",
   data() {
@@ -148,7 +146,14 @@ export default {
       UserEmail: "",
       Password: "",
       AuthError: false,
+      AuthErrorMsg: "",
     };
+  },
+  mounted() {
+    sessionStorage.setItem("seller_session_token", "");
+    sessionStorage.setItem("seller_email", "");
+    sessionStorage.setItem("seller_first_name", "");
+    sessionStorage.setItem("seller_last_name", "");
   },
   methods: {
     async Submit() {
@@ -158,15 +163,14 @@ export default {
         bodyFormData.append("auth_email", this.UserEmail);
         bodyFormData.append("auth_pass", this.Password);
         bodyFormData.append("sign_in", true);
-        await axios({
-          url: "http://localhost:80/sports_place/api/seller_auth.php",
+        const config = {
+          url: "/seller_auth.php",
           method: "post",
           data: bodyFormData,
-
-          headers: { "Content-Type": "multipart/form-data" },
-        })
+        };
+        await this.$req
+          .request(config)
           .then(function (response) {
-            console.log(response);
             sessionStorage.setItem(
               "seller_session_token",
               response.data.seller_session_token
@@ -182,8 +186,16 @@ export default {
             return;
           })
           .catch(function (error) {
-            if (error.response.status == 403) {
-              component.AuthError = true;
+            component.AuthError = true;
+            console.log(error.response);
+            if (error.response.statusText === "Seller Not verified") {
+              component.AuthErrorMsg =
+                "You are not yet verified. Please wait till that happens";
+            } else if (error.response.status === 403) {
+              component.AuthErrorMsg = "Wrong Password or Email";
+            } else if (error.response.status === 500) {
+              component.AuthErrorMsg =
+                "Something unexpected happened from our end";
             }
           });
       } else {

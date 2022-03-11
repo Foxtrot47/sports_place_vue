@@ -96,6 +96,7 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 export default {
+  // eslint-disable-next-line vue/multi-word-component-names
   name: "Home",
   data() {
     return {
@@ -140,27 +141,24 @@ export default {
   methods: {
     async fetchProducts() {
       const component = this;
-      const bodyFormData = new FormData();
-      bodyFormData.append("subcatid", 3);
       // Fetch all user info
-      await this.$axios({
-        url: "http://localhost:80/sports_place/api/search.php",
-        method: "post",
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
-        component.footballProducts = response.data.product_list;
-      });
-      bodyFormData.append("subcatid", 2);
+      await this.$req
+        .get("/search.php", {
+          params: {
+            subcatid: 3,
+          },
+        })
+        .then(function (response) {
+          component.footballProducts = response.data.product_list;
+        });
       // Fetch all user info
-      await this.$axios({
-        url: "http://localhost:80/sports_place/api/search.php",
-        method: "post",
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
-        component.basketBallProducts = response.data.product_list;
-      });
+      await this.$req
+        .get("/search.php", {
+          params: { subcatid: 2 },
+        })
+        .then(function (response) {
+          component.basketBallProducts = response.data.product_list;
+        });
     },
   },
 };

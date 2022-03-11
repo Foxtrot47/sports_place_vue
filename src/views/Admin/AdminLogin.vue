@@ -119,8 +119,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "AdminLogin",
   data() {
@@ -132,6 +130,12 @@ export default {
       AccDuplicateError: false,
     };
   },
+  mounted() {
+    sessionStorage.setItem("admin_session_token", "");
+    sessionStorage.setItem("admin_email", "");
+    sessionStorage.setItem("admin_first_name", "");
+    sessionStorage.setItem("admin_last_name", "");
+  },
   methods: {
     async Submit() {
       if (document.forms["loginform"].checkValidity()) {
@@ -139,15 +143,14 @@ export default {
         const bodyFormData = new FormData();
         bodyFormData.append("auth_email", this.AdminEmail);
         bodyFormData.append("auth_pass", this.Password);
-        await axios({
-          url: "http://localhost:80/sports_place/api/admin_auth.php",
+        const config = {
+          url: "/admin_auth.php",
           method: "post",
           data: bodyFormData,
-
-          headers: { "Content-Type": "multipart/form-data" },
-        })
+        };
+        await this.$req
+          .request(config)
           .then(function (response) {
-            console.log(response);
             sessionStorage.setItem(
               "admin_session_token",
               response.data.admin_session_token
@@ -156,7 +159,7 @@ export default {
             sessionStorage.setItem("first_name", response.data.first_name);
             sessionStorage.setItem("last_name", response.data.last_name);
 
-            component.$router.push({ path: "/admin" });
+            component.$router.push({ path: "/admin/approvals" });
             this.AuthError = false;
             return;
           })

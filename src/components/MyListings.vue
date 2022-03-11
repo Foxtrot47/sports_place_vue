@@ -2,7 +2,9 @@
   <div class="flex flex-col h-full bg-gray-200">
     <div class="flex flex-row flex-none justify-between items-end p-4 bg-white">
       <div class="flex flex-col gap-y-2 font-product-sans">
-        <p class="text-blue-500">Home <span class="text-black">&gt;</span></p>
+        <router-link to="/" class="text-blue-500 hover:text-blue-400">
+          Home <span class="text-black hover:text-black"> &gt; </span>
+        </router-link>
         <p class="text-2xl text-black">Listings Management</p>
       </div>
       <div class="bg-blue-500 max-h-10">
@@ -37,18 +39,6 @@
                       >
                         <div v-on:click="this.ChangeFilter('product_price')">
                           Product Price
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
-                      >
-                        <div
-                          v-on:click="
-                            this.ChangeFilter('product_main_category')
-                          "
-                        >
-                          Product Category
                         </div>
                       </th>
                       <th
@@ -90,11 +80,6 @@
                       <td
                         class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400"
                       >
-                        {{ product.product_sub_category }}
-                      </td>
-                      <td
-                        class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400"
-                      >
                         {{ product.product_quantity }}
                       </td>
                       <td
@@ -123,8 +108,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "MyListings",
   data() {
@@ -134,7 +117,7 @@ export default {
     };
   },
   methods: {
-    fetchProducts() {
+    async fetchProducts() {
       const component = this;
       const bodyFormData = new FormData();
       bodyFormData.append(
@@ -144,17 +127,24 @@ export default {
       bodyFormData.append("mode", "list");
       bodyFormData.append("sort_by", this.sort.sortCol);
       bodyFormData.append("sort_order", this.sort.sortOrder);
-      // Send a request to our API and receive json data containing all listings made by the seller
-      axios({
-        url: "http://localhost:80/sports_place/api/listing_helper.php",
+      // Send a request to our  and receive json data containing all listings made by the seller
+      const config = {
+        url: "/listing_helper.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function (response) {
-        component.productsList = response.data;
-      });
+      };
+      await this.$req
+        .request(config)
+        .then(function (response) {
+          component.productsList = response.data;
+        })
+        .catch(function (error) {
+          if (error.response.statusText == "Session Token Invalid") {
+            component.$router.push("/sellers/login");
+          }
+        });
     },
-    deleteProduct(product_id) {
+    async deleteProduct(product_id) {
       const component = this;
       if (product_id == null) return;
       const bodyFormData = new FormData();
@@ -165,13 +155,20 @@ export default {
       bodyFormData.append("mode", "delete");
       bodyFormData.append("product_id", product_id);
 
-      axios({
-        url: "http://localhost:80/sports_place/api/listing_helper.php",
+      const config = {
+        url: "/listing_helper.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function () {
+      };
+      await this.$req.request(config).then(function () {
         component.fetchProducts();
+      });
+    },
+    assignSubCatName(id) {
+      this.$cat_list["subcategories"].forEach((subcat) => {
+        if (id === subcat.subcatid) {
+          return subcat.subcatname;
+        }
       });
     },
     ChangeFilter(coloumnName) {

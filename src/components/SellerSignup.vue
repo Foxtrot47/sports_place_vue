@@ -167,8 +167,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "SellerSignup",
   data() {
@@ -200,16 +198,16 @@ export default {
         bodyFormData.append("auth_email", this.SellerEmail);
         bodyFormData.append("auth_pass", this.Password);
         bodyFormData.append("sign_in", false);
-        await axios({
-          url: "http://localhost:80/sports_place/api/seller_auth.php",
+        const config = {
+          url: "/seller_auth.php",
           method: "post",
           data: bodyFormData,
-
-          headers: { "Content-Type": "multipart/form-data" },
-        })
+        };
+        await this.$req
+          .request(config)
           // eslint-disable-next-line no-unused-vars
           .then(function (response) {
-            this.AuthError = false;
+            component.AuthError = false;
             component.$router.push({ path: "/sellers/login" });
           })
           .catch(function (error) {

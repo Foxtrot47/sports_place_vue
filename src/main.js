@@ -1,20 +1,22 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import store from "./store";
 import "@/assets/tailwind.css";
+import "@/assets/fontawesome/css/all.css";
 import router from "./router";
 import axios from "axios";
 
-const app = createApp(App).use(router).use(store);
+const app = createApp(App).use(router);
 
+const shit = axios.create({
+  baseURL: "http://localhost/api",
+  timeout: 1000,
+  headers: { "Content-Type": "multipart/form-data" },
+});
+app.config.globalProperties.$req = shit;
 async function fetchCats() {
-  await axios({
-    url: "http://localhost:80/sports_place/api/categoryinfo.php",
-    method: "get",
-  }).then(function (response) {
+  await shit.get("/categoryinfo.php").then(function (response) {
     app.config.globalProperties.$cat_list = response.data;
   });
-  app.config.globalProperties.$axios = axios;
 
   app.mount("#app");
 }

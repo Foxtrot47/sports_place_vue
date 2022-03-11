@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-100 h-full">
-    <navbar />
+    <Navbar />
     <div class="flex flex-col gap-y-4 mx-20 my-4 h-max">
       <div class="grid grid-cols-11 gap-x-2 justify-center p-4 bg-white">
         <div class="col-span-5 flex flex-col gap-y-2">
@@ -17,7 +17,7 @@
                 <i class="fa-solid fa-arrow-down"></i>
               </div>
               <div
-                class="flex flex-col gap-y-2 overflow-hidden transition ease-in-out delay-150"
+                class="flex flex-col gap-y-2 overflow-hidden transition ease-in-out delay-150 h-[500px]"
               >
                 <div
                   v-for="(image, index) in productInfo.product_images"
@@ -25,7 +25,11 @@
                   @click="selectedImageId = index"
                   class="hover:border-blue-500 hover:border-2"
                 >
-                  <img :src="image" class="hover:border-blue-500 border-2" />
+                  <img
+                    v-if="image"
+                    :src="image"
+                    class="hover:border-blue-500 border-2"
+                  />
                 </div>
               </div>
             </div>
@@ -75,6 +79,26 @@
           <div class="text-3xl font-semibold">
             ₹ {{ productInfo.product_price }}
           </div>
+          <div class="flex flex-row gap-x-2" v-if="productInfo.product_color">
+            <span class="font-light">Color</span>
+            <div
+              class="flex flex-row gap-x-2 border-2 border-blue-500 px-4 py-1 text-sm"
+            >
+              {{ productInfo.product_color }}
+            </div>
+          </div>
+          <div class="flex flex-row gap-x-2" v-if="productInfo.product_size">
+            <span class="font-light">Color</span>
+            <div class="border-2 border-blue-500 px-4 py-1 text-sm">
+              {{ productInfo.product_size }}
+            </div>
+          </div>
+          <div class="flex flex-row gap-x-2">
+            <span class="font-light">Seller Name</span>
+            <span class="text-blue-500 font-semibold text-lg">
+              {{ productInfo.product_seller_name }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -83,8 +107,8 @@
 
 <script>
 import Navbar from "./Navbar.vue";
-import axios from "axios";
 export default {
+  name: "ProductInfo",
   data() {
     return {
       productInfo: [],
@@ -106,7 +130,6 @@ export default {
     var i;
     for (i = 0; i < upScrollButton.length; i++) {
       upScrollButton[i].addEventListener("click", function () {
-        console.log(this.parentElement);
         this.parentElement.lastChild.scrollTop -= 100;
       });
     }
@@ -117,28 +140,28 @@ export default {
     }
   },
   methods: {
-    fetchProductInfo() {
+    async fetchProductInfo() {
       const component = this;
-      // Send a request to our API and receive json data containing all listings made by the seller
-      axios({
-        url: "http://localhost:80/sports_place/api/productinfo.php",
-        method: "get",
-        params: {
-          productid: component.product_ID,
-        },
-      }).then(function (response) {
-        component.productInfo = response.data;
-        component.catName =
-          component.$cat_list.categories[
-            response.data.product_main_category
-          ].catname;
-        component.subCatName =
-          component.$cat_list.subcategories[
-            response.data.product_sub_category
-          ].subcatname;
-      });
+      // Send a request to our  and receive json data containing all listings made by the seller
+      this.$req
+        .get("/productinfo.php", {
+          params: {
+            productid: component.product_ID,
+          },
+        })
+        .then(function (response) {
+          component.productInfo = response.data;
+          component.catName =
+            component.$cat_list.categories[
+              response.data.product_main_category
+            ].catname;
+          component.subCatName =
+            component.$cat_list.subcategories[
+              response.data.product_sub_category
+            ].subcatname;
+        });
     },
-    addToCart(path) {
+    async addToCart(path) {
       if (!sessionStorage.getItem("user_session_token")) {
         this.$router.push({
           path: "/users/login",
@@ -154,13 +177,13 @@ export default {
       bodyFormData.append("mode", "add");
       bodyFormData.append("productid", this.product_ID);
       bodyFormData.append("quantity", 1);
-      // Send a request to our API to add the product to cart
-      this.$axios({
-        url: "http://localhost:80/sports_place/api/listcart.php",
+      // Send a request to our  to add the product to cart
+      const config = {
+        url: "/listcart.php",
         method: "post",
         data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then(function () {
+      };
+      await this.$req.request(config).then(function () {
         component.$router.push({
           path: `/users/${path}`,
         });
